@@ -6,11 +6,16 @@ from std_msgs.msg import String, UInt8
 
 COMMAND_NAMES = {
     0: 'STOP',
-    1: 'DANCE 1',
-    2: 'DANCE 2',
+    1: 'DANCE 1 - WINGS UP',
+    2: 'DANCE 2 - WAVE',
     3: 'DANCE 3',
     4: 'DANCE 4',
+    10: 'STEP FORWARD',
+    11: 'STEP BACKWARD',
+    12: 'STEP LEFT',
+    13: 'STEP RIGHT',
 }
+
 
 class CheerCommandReceiver(Node):
     """Safe PC-side test receiver.
@@ -27,6 +32,7 @@ class CheerCommandReceiver(Node):
         self.status_pub = self.create_publisher(String, '/cheer_status', 10)
         self.create_timer(1.0, self._publish_ready)
         self.last_command = None
+
         self.get_logger().info(
             'Cheer command receiver started. Robot output is disabled.'
         )
@@ -61,9 +67,11 @@ class CheerCommandReceiver(Node):
         else:
             self._publish_status(f'{name} RECEIVED - TEST MODE')
 
+
 def main(args=None):
     rclpy.init(args=args)
     node = CheerCommandReceiver()
+
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
@@ -72,6 +80,7 @@ def main(args=None):
         node.destroy_node()
         if rclpy.ok():
             rclpy.shutdown()
+
 
 if __name__ == '__main__':
     main()
