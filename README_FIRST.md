@@ -9,15 +9,16 @@ This is a clean ROS 2 workspace. The `g1_cheer_ui` package is directly under `sr
 - Dance 3 and Dance 4 remain unassigned.
 - **STOP ROUTINE** -> command `0` immediately.
 
-The GUI includes lightweight GIF previews extracted from the team's presentation. The original source videos remain in the project presentation; the repository stores only the preview assets needed by the GUI.
+The GUI now uses PyQt6 Qt Multimedia (`QMediaPlayer` + `QVideoWidget`) for smooth MP4 previews. Place `dance1_wings_up.mp4` and `dance2_wave.mp4` in `src/g1_cheer_ui/media/` before building.
 
 ## GUI flow
 
 1. Press **Dance 1 / Wings Up** or **Dance 2 / Wave**.
 2. The routine preview plays in the center of the screen.
 3. Selecting the routine does **not** publish a ROS command.
-4. Press the START button to publish command `1` or `2`.
-5. STOP ROUTINE immediately publishes command `0`.
+4. Hold START for 5 seconds to publish command `1` or `2`.
+5. Keep holding while the routine runs; releasing START publishes command `0`.
+6. STOP MOTION immediately publishes command `0`.
 
 ## Build
 
@@ -25,7 +26,7 @@ The GUI includes lightweight GIF previews extracted from the team's presentation
 cd ~/g1_cheer_ws
 source /opt/ros/jazzy/setup.bash
 sudo apt update
-sudo apt install python3-pyqt6
+sudo apt install python3-pyqt6 python3-pyqt6.qtmultimedia gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-libav
 rm -rf build install log
 colcon build --symlink-install
 source install/setup.bash
