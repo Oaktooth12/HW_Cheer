@@ -11,8 +11,9 @@ from ament_index_python.packages import get_package_share_directory
 from rclpy.node import Node
 from std_msgs.msg import String, UInt8
 
-from PyQt6.QtCore import QElapsedTimer, QSize, QTimer, Qt
-from PyQt6.QtGui import QMovie
+from PyQt6.QtCore import QElapsedTimer, QTimer, Qt, QUrl
+from PyQt6.QtMultimedia import QMediaPlayer
+from PyQt6.QtMultimediaWidgets import QVideoWidget
 from PyQt6.QtWidgets import (
     QApplication,
     QButtonGroup,
@@ -21,6 +22,7 @@ from PyQt6.QtWidgets import (
     QLabel,
     QMainWindow,
     QPushButton,
+    QStackedWidget,
     QVBoxLayout,
     QWidget,
 )
@@ -46,8 +48,8 @@ DANCE_NAMES = {
 }
 
 PREVIEW_FILES = {
-    COMMAND_DANCE_1: 'dance1_wings_up.gif',
-    COMMAND_DANCE_2: 'dance2_wave.gif',
+    COMMAND_DANCE_1: 'dance1_wings_up.mp4',
+    COMMAND_DANCE_2: 'dance2_wave.mp4',
 }
 
 
@@ -100,7 +102,6 @@ class CheerWindow(QMainWindow):
 
         self.ros_node = ros_node
         self.selected_dance = None
-        self.preview_movie = None
         self.preview_ready = False
         self.walk_mode = False
 
@@ -199,16 +200,33 @@ class CheerWindow(QMainWindow):
 
         self.preview_label = QLabel('Preview will appear here')
         self.preview_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.preview_label.setMinimumSize(500, 430)
         self.preview_label.setStyleSheet(
-            'font-size: 20px; '
+            'font-size: 20px; background-color: #111111; color: white;'
+        )
+
+        self.video_widget = QVideoWidget()
+        self.video_widget.setStyleSheet('background-color: #111111;')
+
+        self.preview_stack = QStackedWidget()
+        self.preview_stack.setMinimumSize(500, 430)
+        self.preview_stack.setStyleSheet(
             'border: 2px solid #808080; '
             'border-radius: 10px; '
-            'background-color: #111111; '
-            'color: white;'
+            'background-color: #111111;'
         )
+        self.preview_stack.addWidget(self.preview_label)
+        self.preview_stack.addWidget(self.video_widget)
+        self.preview_stack.setCurrentWidget(self.preview_label)
+
+        self.video_player = QMediaPlayer(self)
+        self.video_player.setVideoOutput(self.video_widget)
+        self.video_player.mediaStatusChanged.connect(
+            self._preview_media_status_changed
+        )
+        self.video_player.errorOccurred.connect(self._preview_error)
+
         center_panel.addWidget(
-            self.preview_label,
+            self.preview_stack,
             1,
             alignment=Qt.AlignmentFlag.AlignCenter,
         )
@@ -346,6 +364,7 @@ class CheerWindow(QMainWindow):
         self.reset_start_button_text()
 
     def show_preview(self, command_id: int) -> bool:
+        """Load and play the MP4 preview for the selected routine."""
         self.stop_preview()
 
         filename = PREVIEW_FILES.get(command_id)
@@ -358,25 +377,47 @@ class CheerWindow(QMainWindow):
         package_share = get_package_share_directory('g1_cheer_ui')
         preview_path = os.path.join(package_share, 'media', filename)
 
-        movie = QMovie(preview_path)
-        if not movie.isValid():
+        if not os.path.isfile(preview_path):
             self.preview_label.setText(
-                f'{DANCE_NAMES[command_id]}\nPREVIEW COULD NOT BE LOADED'
+                f'{DANCE_NAMES[command_id]}\nMP4 PREVIEW NOT FOUND'
             )
             return False
 
-        movie.setScaledSize(QSize(480, 400))
-        self.preview_label.setText('')
-        self.preview_label.setMovie(movie)
-        self.preview_movie = movie
-        movie.start()
+        self.preview_stack.setCurrentWidget(self.video_widget)
+        self.video_player.setSource(QUrl.fromLocalFile(preview_path))
+        self.video_player.setPosition(0)
+        self.video_player.play()
         return True
 
     def stop_preview(self):
-        if self.preview_movie is not None:
-            self.preview_movie.stop()
-            self.preview_movie = None
-            self.preview_label.setMovie(None)
+        """Stop video playback and return to the message panel."""
+        self.video_player.stop()
+        self.video_player.setSource(QUrl())
+        self.preview_stack.setCurrentWidget(self.preview_label)
+
+    def _preview_media_status_changed(self, status):
+        """Loop the selected routine preview while it remains selected."""
+        if (
+            status == QMediaPlayer.MediaStatus.EndOfMedia
+            and self.preview_ready
+            and not self.walk_mode
+        ):
+            self.video_player.setPosition(0)
+            self.video_player.play()
+
+    def _preview_error(self, error, error_string):
+        """Show a useful message if Qt cannot decode the MP4 preview."""
+        if error == QMediaPlayer.Error.NoError:
+            return
+
+        self.video_player.stop()
+        self.preview_ready = False
+        self.start_button.setEnabled(False)
+        self.preview_stack.setCurrentWidget(self.preview_label)
+        self.preview_label.setText(
+            'VIDEO PREVIEW ERROR\n'
+            f'{error_string or "Check Qt multimedia / H.264 support"}'
+        )
 
     def begin_start_hold(self):
         """Start the 5-second deliberate hold timer."""
