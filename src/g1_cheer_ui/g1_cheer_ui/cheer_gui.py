@@ -114,39 +114,39 @@ class CheerWindow(QMainWindow):
 
         root = QWidget()
         main_layout = QVBoxLayout(root)
-        main_layout.setContentsMargins(18, 14, 18, 18)
-        main_layout.setSpacing(10)
+        main_layout.setContentsMargins(10, 8, 10, 10)
+        main_layout.setSpacing(6)
 
         title = QLabel('G1 CHEER CONTROL')
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title.setStyleSheet(
-            'font-size: 30px; font-weight: 800; padding: 2px;'
+            'font-size: 24px; font-weight: 800; padding: 1px;'
         )
         main_layout.addWidget(title)
 
         self.connection_label = QLabel('WAITING FOR COMPUTER')
         self.connection_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.connection_label.setStyleSheet(
-            'font-size: 16px; font-weight: 600; padding: 4px;'
+            'font-size: 14px; font-weight: 600; padding: 2px;'
         )
         main_layout.addWidget(self.connection_label)
 
         content_layout = QHBoxLayout()
-        content_layout.setSpacing(18)
+        content_layout.setSpacing(10)
 
         # ---------------- LEFT CONTROL COLUMN ----------------
         left_panel = QVBoxLayout()
-        left_panel.setSpacing(10)
+        left_panel.setSpacing(6)
 
         self.start_button = QPushButton(
             'HOLD 5 SEC\nTO START'
         )
-        self.start_button.setMinimumSize(220, 110)
+        self.start_button.setMinimumSize(170, 75)
         self.start_button.setEnabled(False)
         self.start_button.setStyleSheet(
-            'font-size: 23px; font-weight: 800; '
+            'font-size: 18px; font-weight: 800; '
             'background-color: #2e7d32; color: white; '
-            'border-radius: 10px;'
+            'border-radius: 8px;'
         )
         self.start_button.pressed.connect(self.begin_start_hold)
         self.start_button.released.connect(self.end_start_hold)
@@ -155,7 +155,7 @@ class CheerWindow(QMainWindow):
         dance_label = QLabel('DANCE ROUTINES')
         dance_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         dance_label.setStyleSheet(
-            'font-size: 16px; font-weight: 700; padding-top: 6px;'
+            'font-size: 13px; font-weight: 700; padding-top: 3px;'
         )
         left_panel.addWidget(dance_label)
 
@@ -173,9 +173,9 @@ class CheerWindow(QMainWindow):
         for text, command_id in dance_buttons:
             button = QPushButton(text)
             button.setCheckable(True)
-            button.setMinimumSize(220, 72)
+            button.setMinimumSize(170, 54)
             button.setStyleSheet(
-                'font-size: 19px; font-weight: 650; padding: 6px;'
+                'font-size: 15px; font-weight: 650; padding: 4px;'
             )
             button.clicked.connect(
                 lambda checked=False, c=command_id: self.select_dance(c)
@@ -188,27 +188,27 @@ class CheerWindow(QMainWindow):
 
         # ---------------- CENTER PREVIEW COLUMN ----------------
         center_panel = QVBoxLayout()
-        center_panel.setSpacing(10)
+        center_panel.setSpacing(6)
 
         self.selection_label = QLabel('SELECT A DANCE TO PREVIEW')
         self.selection_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.selection_label.setWordWrap(True)
         self.selection_label.setStyleSheet(
-            'font-size: 18px; font-weight: 700; padding: 6px;'
+            'font-size: 15px; font-weight: 700; padding: 3px;'
         )
         center_panel.addWidget(self.selection_label)
 
         self.preview_label = QLabel('Preview will appear here')
         self.preview_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.preview_label.setStyleSheet(
-            'font-size: 20px; background-color: #111111; color: white;'
+            'font-size: 16px; background-color: #111111; color: white;'
         )
 
         self.video_widget = QVideoWidget()
         self.video_widget.setStyleSheet('background-color: #111111;')
 
         self.preview_stack = QStackedWidget()
-        self.preview_stack.setMinimumSize(500, 430)
+        self.preview_stack.setMinimumSize(360, 260)
         self.preview_stack.setStyleSheet(
             'border: 2px solid #808080; '
             'border-radius: 10px; '
@@ -237,19 +237,19 @@ class CheerWindow(QMainWindow):
         self.action_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.action_label.setWordWrap(True)
         self.action_label.setStyleSheet(
-            'font-size: 15px; padding: 4px;'
+            'font-size: 13px; padding: 2px;'
         )
         center_panel.addWidget(self.action_label)
 
         # ---------------- RIGHT CONTROL COLUMN ----------------
         right_panel = QVBoxLayout()
-        right_panel.setSpacing(10)
+        right_panel.setSpacing(6)
 
         self.mode_button = QPushButton('MODE: DANCE')
         self.mode_button.setCheckable(True)
-        self.mode_button.setMinimumSize(220, 76)
+        self.mode_button.setMinimumSize(170, 58)
         self.mode_button.setStyleSheet(
-            'font-size: 21px; font-weight: 800; '
+            'font-size: 17px; font-weight: 800; '
             'border: 2px solid #555; border-radius: 9px;'
         )
         self.mode_button.toggled.connect(self.set_walk_mode)
@@ -258,13 +258,13 @@ class CheerWindow(QMainWindow):
         walk_label = QLabel('ONE-STEP WALK CONTROL')
         walk_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         walk_label.setStyleSheet(
-            'font-size: 15px; font-weight: 700; padding-top: 10px;'
+            'font-size: 12px; font-weight: 700; padding-top: 4px;'
         )
         right_panel.addWidget(walk_label)
 
         walk_grid = QGridLayout()
-        walk_grid.setHorizontalSpacing(8)
-        walk_grid.setVerticalSpacing(8)
+        walk_grid.setHorizontalSpacing(5)
+        walk_grid.setVerticalSpacing(5)
 
         self.walk_forward = self.make_walk_button(
             '▲\nFORWARD', COMMAND_STEP_FORWARD
@@ -290,14 +290,14 @@ class CheerWindow(QMainWindow):
         stop_label = QLabel('SOFTWARE MOTION STOP')
         stop_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         stop_label.setStyleSheet(
-            'font-size: 14px; font-weight: 700;'
+            'font-size: 12px; font-weight: 700;'
         )
         right_panel.addWidget(stop_label)
 
         self.stop_button = QPushButton('STOP MOTION')
-        self.stop_button.setMinimumSize(220, 105)
+        self.stop_button.setMinimumSize(170, 72)
         self.stop_button.setStyleSheet(
-            'font-size: 25px; font-weight: 900; '
+            'font-size: 20px; font-weight: 900; '
             'background-color: #c62828; color: white; '
             'border: 3px solid #8e0000; border-radius: 10px;'
         )
@@ -325,9 +325,9 @@ class CheerWindow(QMainWindow):
 
     def make_walk_button(self, text: str, command_id: int) -> QPushButton:
         button = QPushButton(text)
-        button.setMinimumSize(68, 68)
+        button.setMinimumSize(58, 58)
         button.setStyleSheet(
-            'font-size: 15px; font-weight: 750; padding: 4px;'
+            'font-size: 12px; font-weight: 750; padding: 3px;'
         )
         button.clicked.connect(
             lambda checked=False, c=command_id: self.send_walk_step(c)
@@ -602,7 +602,7 @@ def main(args=None):
 
     app = QApplication(sys.argv)
     window = CheerWindow(node)
-    window.show()
+    window.showMaximized()
 
     ros_thread = threading.Thread(
         target=_spin_ros, args=(node,), daemon=True
