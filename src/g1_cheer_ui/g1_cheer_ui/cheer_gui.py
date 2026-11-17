@@ -109,8 +109,9 @@ class CheerWindow(QMainWindow):
         self.hold_triggered = False
 
         self.setWindowTitle('G1 Cheer Control')
-        self.setMinimumSize(1000, 650)
-        self.resize(1200, 760)
+        # Sized for the Raspberry Pi touchscreen while still scaling up on larger displays.
+        self.setMinimumSize(760, 440)
+        self.resize(1024, 600)
 
         root = QWidget()
         main_layout = QVBoxLayout(root)
